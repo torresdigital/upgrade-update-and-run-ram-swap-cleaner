@@ -124,7 +124,103 @@ echo
 echo
 sleep 1
 
-sh ./ram-and-swap-cleaner.sh
+#sh ./ram-and-swap-cleaner.sh
+
+sleep 2
+echo -e ${b_green} " 
+
+   * ================================================== * 
+  *            Welcome to Ram Swap Cleaner               *
+   * ================================================== * 
+    
+         " ${nc}
+echo
+echo
+
+sleep 2
+
+echo -e ${b_green} "  This script will clear the memory swap and cached memory to free up your RAM. 🙌" ${nc}
+
+echo
+echo
+
+free_h=$(free -h)
+
+echo -e ${on_yellow} 
+echo "$free_h "
+echo -e ${nc}
+
+# Get Memory Information
+freemem_before=$(cat /proc/meminfo | grep MemFree | tr -s ' ' | cut -d ' ' -f2) && freemem_before=$(echo "$freemem_before/1024.0" | bc)
+cachedmem_before=$(cat /proc/meminfo | grep "^Cached" | tr -s ' ' | cut -d ' ' -f2) && cachedmem_before=$(echo "$cachedmem_before/1024.0" | bc)
+
+# Output Information
+# echo -e "This script will clear cached memory and free up your ram.\n\nAt the moment you have $cachedmem_before MiB cached and $freemem_before MiB free # memory."
+
+echo
+echo
+
+# Test sync
+if [ "$?" != "0" ]
+then
+  echo "Something went wrong, It's impossible to sync the filesystem."
+  exit 1
+fi
+
+# Clear Filesystem Buffer using "sync" and Clear Caches
+sync && echo 3 > /proc/sys/vm/drop_caches
+
+freemem_after=$(cat /proc/meminfo | grep MemFree | tr -s ' ' | cut -d ' ' -f2) && freemem_after=$(echo "$freemem_after/1024.0" | bc)
+
+## Output Summary
+## echo -e "This freed $(echo "$freemem_after - $freemem_before" | bc) MiB, so now you have $freemem_after MiB of free RAM."
+## exit 0
+
+echo -e " ${red_intense}🧮 Cleaning you Swap Memory " 
+echo
+sleep 1
+
+swapoff -a && swapon  -a && \
+echo
+sleep 1
+
+echo -e " ${on_yellow}🧮 Cleaning you cached Memory " ${nc}
+echo
+echo
+sleep 2
+
+## Output Information
+echo -ne " ${b_green} At the moment you have $cachedmem_before MiB cached and $freemem_before MiB free memory." ${nc}
+
+## Get Memory Information to make a new clean
+freemem_before=$(cat /proc/meminfo | grep MemFree | tr -s ' ' | cut -d ' ' -f2) && freemem_before=$(echo "$freemem_before/1024.0" | bc)
+cachedmem_before=$(cat /proc/meminfo | grep "^Cached" | tr -s ' ' | cut -d ' ' -f2) && cachedmem_before=$(echo "$cachedmem_before/1024.0" | bc)
+
+echo
+echo
+
+## Test sync
+if [ "$?" != "0" ]
+then
+  echo "Something went wrong, It's impossible to sync the file system."
+  exit 1
+fi
+
+## Clear File system Buffer using "sync" and Clear Caches
+sync && echo 3 > /proc/sys/vm/drop_caches
+
+freemem_after=$(cat /proc/meminfo | grep MemFree | tr -s ' ' | cut -d ' ' -f2) && freemem_after=$(echo "$freemem_after/1024.0" | bc)
+
+## Output Summary
+
+echo -e "${on_green}This freed $(echo "$freemem_after - $freemem_before" | bc) MiB, so now you have $freemem_after MiB of free RAM. 😀" ${nc}
+ 
+echo
+echo
+echo -ne " Share this script ! 🙌 😘 "
+
+exit 0
+
 
 #O comando sudo apt upgrade no Linux Ubuntu atualiza os pacotes instalados no sistema para as versões mais recentes: Remove versões antigas de #pacotes que não são mais necessários, Corrige conflitos. 
 #
